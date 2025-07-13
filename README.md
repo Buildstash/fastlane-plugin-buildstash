@@ -4,24 +4,22 @@
 The `fastlane-plugin-buildstash` plugin allows you to upload build artifacts to Buildstash seamlessly as part of your Fastlane workflow. This plugin ensures that your builds are efficiently stored and accessible for further processing.
 
 ## Installation
-To install the plugin, add the following to your `Gemfile`:
+You can install this plugin to your project running:
+
+```sh
+fastlane add_plugin buildstash
+```
+
+Or, to use a copy of this plugin locally, add it to your `Pluginfile`:
 
 ```ruby
-source 'https://rubygems.org'
-
-gem 'fastlane-plugin-buildstash', git: 'https://oauth2:<DEPLOYMENT_TOKEN>@gitlab.com:GimbalCube/internal/fastlane-plugins/fastlane-buildstash.git'
+gem 'fastlane-plugin-buildstash', path: '/path/to/fastlane-plugin-buildstash'
 ```
 
 Then run:
 
 ```sh
 bundle install
-```
-
-Or install it directly using:
-
-```sh
-fastlane plugin install fastlane-plugin-buildstash
 ```
 
 ## Usage
