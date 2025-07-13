@@ -30,23 +30,19 @@ buildstash_upload(
   api_key: 'your_api_key_here',
   structure: 'file',
   primary_file_path: './path/to/file.apk',
-  platform: 'android',                  # Assuming platform is Android, see Buildstash documentation for other platforms
-  stream: 'default',                    # Exact name of a build stream in your app
-  version_component_1_major: '0',       # Pass in semantic version components
+  platform: 'android',
+  stream: 'default',
+  version_component_1_major: '0',
   version_component_2_minor: '0',
   version_component_3_patch: '1',
-  version_component_extra: 'rc',          # Additional version identifier (e.g., `rc`)
-  version_component_meta: '2024.12.01',  # Metadata related to the version
-  custom_build_number: '12345',         # Custom Version of the build
-  notes: '<AppChangelog>',              # Changelog or additional notes
-  
-  # Optional CI information
+  version_component_extra: 'rc',
+  version_component_meta: '2024.12.01',
+  custom_build_number: '12345',
+  notes: '<AppChangelog>',
   source: 'ghactions',
   ci_pipeline: ${{ github.workflow }},
   ci_run_id: ${{ github.run_id }},
   ci_run_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }},
-  
-  # Optional VC information
   vc_host_type: 'git',
   vc_host: 'github',
   vc_repo_name: ${{ github.repository }},
