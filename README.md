@@ -26,31 +26,33 @@ bundle install
 To upload an artifact to Buildstash, use the `buildstash_upload` action in your `Fastfile`:
 
 ```ruby
-buildstash_upload(
-  api_key: 'your_api_key_here',
-  structure: 'file',
-  primary_file_path: './path/to/file.apk',
-  platform: 'android',
-  stream: 'default',
-  version_component_1_major: 0,
-  version_component_2_minor: 0,
-  version_component_3_patch: 1,
-  version_component_extra: 'rc',
-  version_component_meta: '2024.12.01',
-  custom_build_number: '12345',
-  notes: '<AppChangelog>',
-  source: 'ghactions',
-  ci_pipeline: ${{ github.workflow }},
-  ci_run_id: ${{ github.run_id }},
-  ci_run_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }},
-  vc_host_type: 'git',
-  vc_host: 'github',
-  vc_repo_name: ${{ github.repository }},
-  vc_repo_url: ${{ github.server_url }}/${{ github.repository }},
-  vc_branch: ${{ github.ref_name }},
-  vc_commit_sha: ${{ github.sha }},
-  vc_commit_url: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
-)
+lane :run_buildstash_upload do |options|
+  buildstash_upload(
+    api_key: options[:api_key],
+    structure: 'file',
+    primary_file_path: './path/to/file.apk',
+    platform: 'android',
+    stream: 'default',
+    version_component_1_major: 0,
+    version_component_2_minor: 0,
+    version_component_3_patch: 1,
+    version_component_extra: 'rc',
+    version_component_meta: '2024.12.01',
+    custom_build_number: '12345',
+    notes: '<AppChangelog>',
+    source: 'ghactions',
+    ci_pipeline: options[:ci_pipeline],
+    ci_run_id: options[:ci_run_id],
+    ci_run_url: options[:ci_run_url],
+    vc_host_type: 'git',
+    vc_host: 'github',
+    vc_repo_name: options[:vc_repo_name],
+    vc_repo_url: options[:vc_repo_url],
+    vc_branch: options[:vc_branch],
+    vc_commit_sha: options[:vc_commit_sha],
+    vc_commit_url: options[:vc_commit_url]
+  )
+end
 ```
 
 ## Parameters
