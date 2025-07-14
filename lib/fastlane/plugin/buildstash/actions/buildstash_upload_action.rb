@@ -249,7 +249,14 @@ module Fastlane
 
         response_data = JSON.parse(response.body)
 
-        if response_data["build_info_url"]
+        # Set outputs
+        Actions.lane_context[:BUILDSTASH_BUILD_ID] = response_data["build_id"]
+        Actions.lane_context[:BUILDSTASH_INFO_URL] = response_data["build_info_url"]
+        Actions.lane_context[:BUILDSTASH_DOWNLOAD_URL] = response_data["download_url"]
+
+        if response_data["build_info_url"] && response_data&.dig("pending_processing") == true
+          UI.success("✅ Upload complete! Build now being processed. Once ready, view it at: #{response_data["build_info_url"]}")
+        elsif response_data["build_info_url"]
           UI.success("✅ Upload complete! View it at: #{response_data["build_info_url"]}")
         else
           UI.success("✅ Upload to Buildstash successful!")
@@ -434,6 +441,14 @@ module Fastlane
             type: String,
           ),
 
+        ]
+      end
+
+      def self.output
+        [
+          ['BUILDSTASH_BUILD_ID', 'The build ID in Buildstash for the uploaded build'],
+          ['BUILDSTASH_INFO_URL', 'Link to view uploaded build within Buildstash workspace'],
+          ['BUILDSTASH_DOWNLOAD_URL', 'Link to download the build uploaded to Buildstash (requires login)']
         ]
       end
 

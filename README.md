@@ -112,6 +112,17 @@ If the file does not exist, an error will be raised:
 [✗] File not found at path: non_existent_file.apk
 ```
 
+
+## Outputs
+The buildstash_upload action stores the following outputs in lane_context for in subsequent actions:
+
+| Key | Description |
+|-----|-------------|
+| `BUILDSTASH_BUILD_ID` | The build ID in Buildstash for the uploaded build |
+| `BUILDSTASH_INFO_URL` | Link to view uploaded build within Buildstash workspace |
+| `BUILDSTASH_DOWNLOAD_URL` | Link to download the build uploaded to Buildstash (requires login) |
+
+
 ## Testing
 To run tests:
 
