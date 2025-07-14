@@ -23,7 +23,27 @@ bundle install
 ```
 
 ## Usage
-To upload an artifact to Buildstash, use the `buildstash_upload` action in your `Fastfile`:
+To upload an artifact to Buildstash, use the `buildstash_upload` action in your `Fastfile`.
+
+With base required parameters:
+
+```ruby
+lane :run_buildstash_upload do |options|
+  buildstash_upload(
+    api_key: options[:api_key],
+    structure: 'file',
+    primary_file_path: './path/to/file.apk',
+    platform: 'android',
+    stream: 'default',
+    version_component_1_major: 0,
+    version_component_2_minor: 0,
+    version_component_3_patch: 1,
+    source: 'ghactions'
+  )
+end
+```
+
+or with all input parameters:
 
 ```ruby
 lane :run_buildstash_upload do |options|
