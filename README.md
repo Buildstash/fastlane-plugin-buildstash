@@ -122,6 +122,26 @@ The buildstash_upload action stores the following outputs in lane_context for in
 | `BUILDSTASH_INFO_URL` | Link to view uploaded build within Buildstash workspace |
 | `BUILDSTASH_DOWNLOAD_URL` | Link to download the build uploaded to Buildstash (requires login) |
 
+For example, to see these values output:
+
+```ruby
+lane :test_plugin do |options|
+  buildstash_upload(
+    api_key: options[:api_key],
+    primary_file_path: "ponderpad.ipa",
+    platform: "ios",
+    stream: "default",
+    version_component_1_major: 1,
+    version_component_2_minor: 0,
+    version_component_3_patch: 1
+  )
+  
+  # Output to terminal
+  UI.message("🔧 Buildstash Build ID: #{lane_context[:BUILDSTASH_BUILD_ID]}")
+  UI.message("🔗 Build Info URL: #{lane_context[:BUILDSTASH_INFO_URL]}")
+  UI.message("📦 Download URL: #{lane_context[:BUILDSTASH_DOWNLOAD_URL]}")
+end
+```
 
 ## Testing
 To run tests:
