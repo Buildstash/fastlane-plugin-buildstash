@@ -29,7 +29,7 @@ With base required parameters:
 
 ```ruby
 buildstash_upload(
-  api_key: 'BUILDTASH_APP_API_KEY',
+  api_key: 'BUILDSTASH_APP_API_KEY',
   primary_file_path: './path/to/file.apk',
   platform: 'android',
   stream: 'default',
@@ -72,31 +72,31 @@ end
 ```
 
 ## Parameters
-| Parameter      | Description                                                                  | Required |
-|--------------|------------------------------------------------------------------------------|----------|
-| `api_key`     | The API key for authentication                                               | ✅       |
-| `structure`     | 'file' for single file, 'file+expansion' to include Android expansion file   | ✅       |
-| `primary_file_path`     | './path/to/file.apk'                                                         | ✅       |
-| `platform`     | 'android' or 'ios' (see Buildstash docs for full list)                       | ✅       |
-| `stream`     | Exact name of a build stream in your app                                     | ✅       |
-| `version_component_1_major`     | Semantic version (major component)                         | ✅       |
-| `version_component_2_minor`     | Semantic version (minor component)                         | ✅       |
-| `version_component_3_patch`     | Semantic version (patch component)                         | ✅       |
-| `version_component_extra`     | Optional pre-release label (beta, rc1, etc)                 | ✖       |
-| `version_component_meta`     | Optional release metadata                                                    | ✖       |
-| `custom_build_number`     | Optional custom build number in any format                                   | ✅       |
-| `notes`     | Changelog or additional notes                                                | ✖️       |
-| `source`     | Where build was produced (`ghactions`, `jenkins`, etc) defaults to cli-upload | ✖️       |
-| `ci_pipeline`     | CI pipeline name                                                             | ✖️       |
-| `ci_run_id`     | CI run ID                                                                    | ✖️       |
-| `ci_run_url`     | CI run URL                                                                   | ✖️       |
-| `vc_host_type`     | Version control host type (git, svn, hg, perforce, etc)                      | ✖️       |
-| `vc_host`     | Version control host (github, gitlab, etc)                                   | ✖️       |
-| `vc_repo_name`     | Repository name                                                              | ✖️       |
-| `vc_repo_url`     | Repository URL                                                               | ✖️       |
-| `vc_branch`     | Branch name (if applicable)                                                  | ✖️       |
-| `vc_commit_sha`     | Commit SHA (if applicable)                                                   | ✖️       |
-| `vc_commit_url`     | Commit URL                                                                   | ✖️       |
+| Parameter      | Description                                                                                       | Required |
+|--------------|---------------------------------------------------------------------------------------------------|----------|
+| `api_key`     | The API key for authentication                                                                    | ✅       |
+| `structure`     | 'file' for single file, 'file+expansion' to include Android expansion file. will default to 'file' | ✖       |
+| `primary_file_path`     | './path/to/file.apk'                                                                              | ✅       |
+| `platform`     | 'android' or 'ios' (see Buildstash docs for full list)                                            | ✅       |
+| `stream`     | Exact name of a build stream in your app                                                          | ✅       |
+| `version_component_1_major`     | Semantic version (major component)                                                                | ✅       |
+| `version_component_2_minor`     | Semantic version (minor component)                                                                | ✅       |
+| `version_component_3_patch`     | Semantic version (patch component)                                                                | ✅       |
+| `version_component_extra`     | Optional pre-release label (beta, rc1, etc)                                                       | ✖       |
+| `version_component_meta`     | Optional release metadata                                                                         | ✖       |
+| `custom_build_number`     | Optional custom build number in any format                                                        | ✖       |
+| `notes`     | Changelog or additional notes                                                                     | ✖️       |
+| `source`     | Where build was produced (`ghactions`, `jenkins`, etc) defaults to cli-upload                     | ✖️       |
+| `ci_pipeline`     | CI pipeline name                                                                                  | ✖️       |
+| `ci_run_id`     | CI run ID                                                                                         | ✖️       |
+| `ci_run_url`     | CI run URL                                                                                        | ✖️       |
+| `vc_host_type`     | Version control host type (git, svn, hg, perforce, etc)                                           | ✖️       |
+| `vc_host`     | Version control host (github, gitlab, etc)                                                        | ✖️       |
+| `vc_repo_name`     | Repository name                                                                                   | ✖️       |
+| `vc_repo_url`     | Repository URL                                                                                    | ✖️       |
+| `vc_branch`     | Branch name (if applicable)                                                                       | ✖️       |
+| `vc_commit_sha`     | Commit SHA (if applicable)                                                                        | ✖️       |
+| `vc_commit_url`     | Commit URL                                                                                        | ✖️       |
 
 
 ## Example Output
