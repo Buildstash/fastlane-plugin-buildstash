@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.author        = 'Buildstash'
   spec.email         = 'hello@buildstash.com'
 
-  spec.summary       = 'Fastlane plugin to upload artifact to Buildstash.'
+  spec.summary       = 'Fastlane plugin to upload built apps to Buildstash - store, organize, and distribute your builds.'
   spec.homepage      = "https://github.com/buildstash/fastlane-plugin-buildstash"
   spec.license       = "MIT"
 
