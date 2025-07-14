@@ -31,14 +31,12 @@ With base required parameters:
 lane :run_buildstash_upload do |options|
   buildstash_upload(
     api_key: options[:api_key],
-    structure: 'file',
     primary_file_path: './path/to/file.apk',
     platform: 'android',
     stream: 'default',
     version_component_1_major: 0,
     version_component_2_minor: 0,
-    version_component_3_patch: 1,
-    source: 'ghactions'
+    version_component_3_patch: 1
   )
 end
 ```
