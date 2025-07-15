@@ -6,9 +6,13 @@ The `fastlane-plugin-buildstash` plugin allows you to upload build artifacts to 
 ## Installation
 You can install this plugin to your project running:
 
+### Preferred installation method
+
 ```sh
 fastlane add_plugin buildstash
 ```
+
+### Testing locally
 
 Or, to use a copy of this plugin locally, add it to your `Pluginfile`:
 
