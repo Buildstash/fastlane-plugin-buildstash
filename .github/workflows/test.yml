@@ -20,7 +20,7 @@ jobs:
         run: |
           mkdir test_plugin
           cd test_plugin
-          fastlane new_plugin test_temp --no-init
+          fastlane new_plugin test_temp --yes <<< ""
           cd fastlane-plugin-test_temp
           fastlane add_plugin buildstash
 
