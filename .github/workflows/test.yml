@@ -16,18 +16,17 @@ jobs:
       - name: Install Fastlane
         run: gem install fastlane
 
-      - name: Create temp plugin project
+      - name: Create temporary project and install Buildstash plugin
         run: |
-          mkdir test_plugin
-          cd test_plugin
-          fastlane new_plugin test_temp --yes <<< ""
-          cd fastlane-plugin-test_temp
+          mkdir temp_fastlane_project
+          cd temp_fastlane_project
+          fastlane init --skip_docs # creates minimal Fastlane setup
           fastlane add_plugin buildstash
 
-      - name: Run tests with API key
+      - name: Run Buildstash plugin tests
         env:
           BUILDSTASH_API_KEY: ${{ secrets.BUILDSTASH_API_KEY }}
         run: |
-          cd test_plugin/fastlane-plugin-test_temp
+          cd temp_fastlane_project
           bundle install
           bundle exec rspec
