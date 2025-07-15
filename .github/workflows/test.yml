@@ -1,0 +1,33 @@
+name: Test Fastlane Buildstash Plugin
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+
+      - name: Install Fastlane
+        run: gem install fastlane
+
+      - name: Create temp plugin project
+        run: |
+          mkdir test_plugin
+          cd test_plugin
+          fastlane new_plugin test_temp --no-init
+          cd fastlane-plugin-test_temp
+          fastlane add_plugin buildstash
+
+      - name: Run tests with API key
+        env:
+          BUILDSTASH_API_KEY: ${{ secrets.BUILDSTASH_API_KEY }}
+        run: |
+          cd test_plugin/fastlane-plugin-test_temp
+          bundle install
+          bundle exec rspec
