@@ -59,7 +59,7 @@ lane :run_buildstash_upload do |options|
     version_component_extra: 'rc',
     version_component_meta: '2024.12.01',
     custom_build_number: '12345',
-    labels: ["to-review", "signed"]
+    labels: ["to-review", "signed"],
     architectures: ["armv6", "armv7", "armv8", "arm64v8", "armv9"],
     notes: '<AppChangelog>',
     source: 'ghactions',

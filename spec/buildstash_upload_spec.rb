@@ -19,9 +19,9 @@ describe Fastlane::Actions::BuildstashUploadAction do
         version_component_extra: 'rc',
         version_component_meta: '2025.01.01',
         notes: '# Changelog\n\n## [1.2.0] - 2025-01-01\n\n### Added\n- Implemented a dark mode for better user experience.\n\n### Changed\n- Improved page loading performance.\n\n### Fixed\n- Fixed a bug preventing user settings from being saved.',
-        stream: 'default'
-        labels: ["to-review", "signed"]
-        architectures: ["armv6", "armv7", "armv8", "arm64v8", "armv9"],
+        stream: 'default',
+        labels: ["to-review", "signed"],
+        architectures: ["apple", "x64"]
       }
 
       # Mock the HTTP response
