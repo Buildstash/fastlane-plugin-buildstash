@@ -20,6 +20,9 @@ module Fastlane
         stream = params[:stream]
         notes = params[:notes]
 
+        labels = params[:labels]
+        architectures = params[:architectures]
+
         source = params[:source]
 
         ci_pipeline = params[:ci_pipeline]
@@ -78,6 +81,9 @@ module Fastlane
           vc_commit_sha: vc_commit_sha,
           vc_commit_url: vc_commit_url
         }
+
+        request_body[:labels] = labels if labels && !labels.empty?
+        request_body[:architectures] = architectures if architectures && !architectures.empty?
 
         expansion_file_path = params[:expansion_file_path]
         # Add expansion file info if structure is file+expansion and expansion file path provided
@@ -348,6 +354,20 @@ module Fastlane
             description: "Custom build number",
             optional: true,
             type: String
+          ),
+
+          FastlaneCore::ConfigItem.new(
+            key: :labels,
+            description: "Labels to attach to build",
+            optional: true,
+            type: Array
+          ),
+
+          FastlaneCore::ConfigItem.new(
+            key: :architectures,
+            description: "Architectures this build supports",
+            optional: true,
+            type: Array
           ),
 
           FastlaneCore::ConfigItem.new(
