@@ -52,6 +52,7 @@ lane :run_buildstash_upload do |options|
     structure: 'file',
     primary_file_path: './path/to/file.apk',
     platform: 'android',
+    custom_target: 'Galaxy Store',
     stream: 'default',
     version_component_1_major: 0,
     version_component_2_minor: 0,
@@ -66,16 +67,46 @@ lane :run_buildstash_upload do |options|
     ci_pipeline: options[:ci_pipeline],
     ci_run_id: options[:ci_run_id],
     ci_run_url: options[:ci_run_url],
+    ci_build_duration: '00:05:00',
     vc_host_type: 'git',
     vc_host: 'github',
     vc_repo_name: options[:vc_repo_name],
     vc_repo_url: options[:vc_repo_url],
     vc_branch: options[:vc_branch],
     vc_commit_sha: options[:vc_commit_sha],
-    vc_commit_url: options[:vc_commit_url]
+    vc_commit_url: options[:vc_commit_url],
+    metadata_artifacts: [
+      { path: './build.log', description: 'Xcode build log' },
+      { path: './test-results.xml', description: 'Unit test results' }
+    ]
   )
 end
 ```
+
+### Uploading metadata artifacts
+
+The `metadata_artifacts` parameter lets you attach supplementary files (logs, test results, crash reports, etc.) to a build. Each entry is a Hash with a `:path` key and an optional `:description`:
+
+```ruby
+buildstash_upload(
+  api_key: ENV['BUILDSTASH_API_KEY'],
+  primary_file_path: './MyApp.ipa',
+  platform: 'ios',
+  stream: 'nightly',
+  version_component_1_major: 2,
+  version_component_2_minor: 1,
+  version_component_3_patch: 0,
+  metadata_artifacts: [
+    { path: './build.log', description: 'Build log' },
+    { path: './test-results.xml', description: 'Unit test results' },
+    { path: './crash-report.txt' }
+  ]
+)
+```
+
+**Limits:**
+- Maximum **10** metadata artifacts per upload — if more are provided, only the first 10 are uploaded and a warning is logged for the rest
+- Maximum **5 MB** per file — files exceeding this limit are skipped with a warning
 
 ## Parameters
 | Parameter                   | Description                                                                                                  | Required |
@@ -84,6 +115,7 @@ end
 | `structure`                 | 'file' for single file, 'file+expansion' to include Android expansion file. will default to 'file'           | ✖       |
 | `primary_file_path`         | './path/to/file.apk'                                                                                         | ✅       |
 | `platform`                  | 'android' or 'ios' (see [Buildstash docs for full list](https://docs.buildstash.com/integrations/platforms)) | ✅       |
+| `custom_target`             | Custom target for this build — must exactly match a target defined in your Buildstash app                    | ✖️       |
 | `stream`                    | Exact name of a build stream in your app                                                                     | ✅       |
 | `version_component_1_major` | Semantic version (major component)                                                                           | ✅       |
 | `version_component_2_minor` | Semantic version (minor component)                                                                           | ✅       |
@@ -94,10 +126,13 @@ end
 | `labels`                    | Array of labels to attach to build (will be created if they do not already exist)                            | ✖       |
 | `architectures`             | Array of architectures this build supports (must be supported by platform)                                   | ✖       |
 | `notes`                     | Changelog or additional notes                                                                                | ✖️       |
+| `expansion_file_path`       | Path to the expansion file (only used when `structure` is `'file+expansion'`)                                | ✖️       |
+| `metadata_artifacts`        | Array of supplementary files to upload with the build (e.g. logs). See [Metadata artifacts](#uploading-metadata-artifacts) | ✖️ |
 | `source`                    | Where build was produced (`ghactions`, `jenkins`, etc) defaults to cli-upload                                | ✖️       |
 | `ci_pipeline`               | CI pipeline name                                                                                             | ✖️       |
 | `ci_run_id`                 | CI run ID                                                                                                    | ✖️       |
 | `ci_run_url`                | CI run URL                                                                                                   | ✖️       |
+| `ci_build_duration`         | CI build duration (e.g. `'00:05:00'`)                                                                        | ✖️       |
 | `vc_host_type`              | Version control host type (git, svn, hg, perforce, etc)                                                      | ✖️       |
 | `vc_host`                   | Version control host (github, gitlab, etc)                                                                   | ✖️       |
 | `vc_repo_name`              | Repository name                                                                                              | ✖️       |

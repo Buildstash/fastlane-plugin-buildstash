@@ -17,6 +17,7 @@ module Fastlane
         version_component_meta = params[:version_component_meta]
         custom_build_number = params[:custom_build_number]
         platform = params[:platform]
+        custom_target = params[:custom_target]
         stream = params[:stream]
         notes = params[:notes]
 
@@ -28,6 +29,7 @@ module Fastlane
         ci_pipeline = params[:ci_pipeline]
         ci_run_id = params[:ci_run_id]
         ci_run_url = params[:ci_run_url]
+        ci_build_duration = params[:ci_build_duration]
 
         vc_host_type = params[:vc_host_type]
         vc_host = params[:vc_host]
@@ -36,6 +38,8 @@ module Fastlane
         vc_branch = params[:vc_branch]
         vc_commit_sha = params[:vc_commit_sha]
         vc_commit_url = params[:vc_commit_url]
+
+        metadata_artifacts = params[:metadata_artifacts] || []
 
         if !structure
           structure = "file"
@@ -67,12 +71,14 @@ module Fastlane
           version_component_meta: version_component_meta,
           custom_build_number: custom_build_number,
           platform: platform,
+          custom_target: custom_target,
           stream: stream,
           notes: notes,
           source: source,
           ci_pipeline: ci_pipeline,
           ci_run_id: ci_run_id,
           ci_run_url: ci_run_url,
+          ci_build_duration: ci_build_duration,
           vc_host_type: vc_host_type,
           vc_host: vc_host,
           vc_repo_name: vc_repo_name,
@@ -267,6 +273,128 @@ module Fastlane
         else
           UI.success("✅ Upload to Buildstash successful!")
         end
+
+        # Upload metadata artifacts if provided
+        unless metadata_artifacts.empty?
+          upload_metadata_artifacts(
+            metadata_artifacts: metadata_artifacts,
+            pending_upload_id: pending_upload_id,
+            api_key: api_key
+          )
+        end
+      end
+
+      def self.upload_metadata_artifacts(metadata_artifacts:, pending_upload_id:, api_key:)
+        max_files = 10
+        max_size_bytes = 5 * 1024 * 1024
+
+        artifacts_to_upload = metadata_artifacts.first(max_files)
+        skipped_count = metadata_artifacts.length - artifacts_to_upload.length
+
+        if skipped_count > 0
+          UI.important("⚠️ Skipping #{skipped_count} metadata artifact(s) — maximum of #{max_files} files allowed per upload.")
+        end
+
+        UI.message("Uploading #{artifacts_to_upload.length} metadata artifact(s)...")
+
+        artifacts_to_upload.each_with_index do |artifact, index|
+          file_path = artifact[:path] || artifact["path"]
+          description = artifact[:description] || artifact["description"]
+
+          unless file_path
+            UI.important("⚠️ Metadata artifact at index #{index} has no path — skipping.")
+            next
+          end
+
+          unless File.exist?(file_path)
+            UI.important("⚠️ Metadata artifact not found at path: #{file_path} — skipping.")
+            next
+          end
+
+          file_size = File.size(file_path)
+          if file_size > max_size_bytes
+            size_mb = (file_size.to_f / (1024 * 1024)).round(2)
+            UI.important("⚠️ Metadata artifact '#{File.basename(file_path)}' is #{size_mb}MB — exceeds the 5MB limit, skipping.")
+            next
+          end
+
+          filename = File.basename(file_path)
+          desc_text = description ? " (#{description})" : ""
+          UI.message("Uploading metadata artifact #{index + 1}/#{artifacts_to_upload.length}: #{filename}#{desc_text}")
+
+          # Request presigned upload URL for this metadata artifact
+          meta_request_response = Helper::BuildstashHelper.post_json(
+            url: "https://app.buildstash.com/api/v1/upload/metadata/request",
+            body: {
+              primary_pending_upload_id: pending_upload_id,
+              filename: filename,
+              size_bytes: file_size
+            },
+            headers: {
+              "Authorization" => "Bearer #{api_key}",
+              "Content-Type" => "application/json",
+              "Accept" => "application/json"
+            }
+          )
+
+          unless meta_request_response.is_a?(Net::HTTPSuccess)
+            UI.error("Failed to request metadata upload for '#{filename}': #{meta_request_response.code} #{meta_request_response.body} — skipping.")
+            next
+          end
+
+          meta_request_data = JSON.parse(meta_request_response.body)
+          metadata_pending_upload_id = meta_request_data["metadata_pending_upload_id"]
+          presigned_data = meta_request_data["presigned_upload_data"]
+
+          unless presigned_data && presigned_data["url"]
+            UI.error("No presigned upload URL returned for metadata artifact '#{filename}' — skipping.")
+            next
+          end
+
+          upload_headers = presigned_data["headers"] || {}
+
+          # Upload the metadata file to the presigned URL
+          upload_response = Helper::BuildstashHelper.upload_file(
+            url: presigned_data["url"],
+            file_path: file_path,
+            headers: {
+              "Content-Type" => upload_headers["Content-Type"] || "application/octet-stream",
+              "Content-Length" => (upload_headers["Content-Length"] || file_size).to_s,
+              "Content-Disposition" => upload_headers["Content-Disposition"] || "attachment; filename=\"#{filename}\"",
+              "x-amz-acl" => "private"
+            }
+          )
+
+          unless upload_response.is_a?(Net::HTTPSuccess)
+            UI.error("Metadata artifact upload failed for '#{filename}': #{upload_response.code} #{upload_response.body} — skipping.")
+            next
+          end
+
+          # Verify the metadata artifact upload
+          verify_body = { pending_upload_id: metadata_pending_upload_id }
+          verify_body[:file_description] = description if description
+
+          meta_verify_response = Helper::BuildstashHelper.post_json(
+            url: "https://app.buildstash.com/api/v1/upload/metadata/verify",
+            body: verify_body,
+            headers: {
+              "Authorization" => "Bearer #{api_key}",
+              "Content-Type" => "application/json",
+              "Accept" => "application/json"
+            }
+          )
+
+          unless meta_verify_response.is_a?(Net::HTTPSuccess)
+            UI.error("Metadata artifact verification failed for '#{filename}': #{meta_verify_response.code} #{meta_verify_response.body} — skipping.")
+            next
+          end
+
+          meta_verify_data = JSON.parse(meta_verify_response.body)
+          artifact_id = meta_verify_data["metadata_artifact_id"]
+          UI.success("Metadata artifact '#{filename}' uploaded successfully (ID: #{artifact_id}).")
+        end
+
+        UI.success("✅ All metadata artifacts processed.")
       end
 
       def self.description
@@ -304,6 +432,13 @@ module Fastlane
             key: :platform,
             description: "Platform of the build",
             optional: false,
+            type: String
+          ),
+
+          FastlaneCore::ConfigItem.new(
+            key: :custom_target,
+            description: "Custom target for this build (must exactly match a target defined in your Buildstash app)",
+            optional: true,
             type: String
           ),
 
@@ -413,6 +548,13 @@ module Fastlane
           ),
 
           FastlaneCore::ConfigItem.new(
+            key: :ci_build_duration,
+            description: "CI build duration (e.g. '00:05:00')",
+            optional: true,
+            type: String,
+          ),
+
+          FastlaneCore::ConfigItem.new(
             key: :vc_host_type,
             description: "Version control host type (git, svn, hg, perforce, etc)",
             optional: true,
@@ -459,6 +601,14 @@ module Fastlane
             description: "Commit URL",
             optional: true,
             type: String,
+          ),
+
+          FastlaneCore::ConfigItem.new(
+            key: :metadata_artifacts,
+            description: "List of supplementary files to upload alongside the build (e.g. logs). Each entry is a Hash with a required `:path` key and an optional `:description` key. Maximum 10 files, 5MB per file",
+            optional: true,
+            type: Array,
+            default_value: []
           ),
 
         ]
