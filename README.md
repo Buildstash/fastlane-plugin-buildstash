@@ -114,7 +114,7 @@ buildstash_upload(
 | `api_key`                   | The API key for authentication                                                                               | ✅       |
 | `structure`                 | 'file' for single file, 'file+expansion' to include Android expansion file. will default to 'file'           | ✖       |
 | `primary_file_path`         | './path/to/file.apk'                                                                                         | ✅       |
-| `platform`                  | 'android' or 'ios' (see [Buildstash docs for full list](https://docs.buildstash.com/integrations/platforms)) | ✅       |
+| `platform`                  | 'android' or 'ios' (see [Buildstash docs for full list](https://docs.buildstash.com/api/data/platforms)) | ✅       |
 | `custom_target`             | Custom target for this build — must exactly match a target defined in your Buildstash app                    | ✖️       |
 | `stream`                    | Exact name of a build stream in your app                                                                     | ✅       |
 | `version_component_1_major` | Semantic version (major component)                                                                           | ✅       |
