@@ -627,7 +627,7 @@ module Fastlane
             key: :ssl_verify,
             description: "Set to false to disable SSL certificate verification. Only use this if your CI runner has SSL issues (e.g. unable to verify certificate CRL)",
             optional: true,
-            type: :boolean,
+            is_string: false,
             default_value: true
           ),
 
