@@ -12,25 +12,27 @@ module Fastlane
         UI.message("Hello from the buildstash plugin helper!")
       end
 
-      def self.post_json(url:, body:, headers:)
+      def self.post_json(url:, body:, headers:, ssl_verify: true)
         uri = URI(url)
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = (uri.scheme == "https")
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE unless ssl_verify
         request = Net::HTTP::Post.new(uri.path, headers)
         request.body = body.to_json
         http.request(request)
       end
 
-      def self.upload_file(url:, file_path:, headers:)
+      def self.upload_file(url:, file_path:, headers:, ssl_verify: true)
         uri = URI(url)
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = (uri.scheme == "https")
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE unless ssl_verify
         request = Net::HTTP::Put.new(uri.request_uri, headers)
         request.body = File.binread(file_path)
         http.request(request)
       end
 
-      def self.upload_chunked_file(file_path:, filesize:, pending_upload_id:, chunk_count:, chunk_size_mb:, api_key:, is_expansion: false)
+      def self.upload_chunked_file(file_path:, filesize:, pending_upload_id:, chunk_count:, chunk_size_mb:, api_key:, is_expansion: false, ssl_verify: true)
         parts = []
         chunk_size = chunk_size_mb * 1024 * 1024
         endpoint = is_expansion ?
@@ -50,6 +52,7 @@ module Fastlane
             uri = URI(endpoint)
             http = Net::HTTP.new(uri.host, uri.port)
             http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE unless ssl_verify
             req = Net::HTTP::Post.new(uri.path, {
               "Authorization" => "Bearer #{api_key}",
               "Content-Type" => "application/json",
@@ -77,6 +80,7 @@ module Fastlane
             uri = URI(presigned_url)
             http = Net::HTTP.new(uri.host, uri.port)
             http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE unless ssl_verify
 
             upload = Net::HTTP::Put.new(uri.request_uri, {
               "Content-Type" => "application/octet-stream",

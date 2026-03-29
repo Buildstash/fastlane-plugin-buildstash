@@ -40,6 +40,7 @@ module Fastlane
         vc_commit_url = params[:vc_commit_url]
 
         metadata_artifacts = params[:metadata_artifacts] || []
+        ssl_verify = params[:ssl_verify]
 
         if !structure
           structure = "file"
@@ -117,7 +118,8 @@ module Fastlane
             "Authorization" => "Bearer #{api_key}",
             "Content-Type" => "application/json",
             "Accept" => "application/json"
-          }
+          },
+          ssl_verify: ssl_verify
         )
 
         unless response.is_a?(Net::HTTPSuccess)
@@ -152,7 +154,8 @@ module Fastlane
             chunk_count: primary_file["chunked_number_parts"],
             chunk_size_mb: primary_file["chunked_part_size_mb"],
             api_key: api_key,
-            is_expansion: false
+            is_expansion: false,
+            ssl_verify: ssl_verify
           )
 
           UI.verbose("primary_file_parts=#{primary_file_parts}");
@@ -167,7 +170,8 @@ module Fastlane
               "x-amz-acl": "private",
               "Content-Type" => primary_file["presigned_data"]["headers"]["Content-Type"],
               "Content-Length" => file_size.to_s
-            }
+            },
+            ssl_verify: ssl_verify
           )
 
           unless response.is_a?(Net::HTTPSuccess)
@@ -196,7 +200,8 @@ module Fastlane
               chunk_count: expansion_info["chunked_number_parts"],
               chunk_size_mb: expansion_info["chunked_part_size_mb"],
               api_key: params[:api_key],
-              is_expansion: true
+              is_expansion: true,
+              ssl_verify: ssl_verify
             )
 
             # Store this info for later if needed
@@ -214,7 +219,8 @@ module Fastlane
                 "Content-Length" => expansion_info["presigned_data"]["headers"]["Content-Length"].to_s,
                 "Content-Disposition" => expansion_info["presigned_data"]["headers"]["Content-Disposition"],
                 "x-amz-acl" => "private"
-              }
+              },
+              ssl_verify: ssl_verify
             )
 
             unless response.is_a?(Net::HTTPSuccess)
@@ -248,7 +254,9 @@ module Fastlane
             "Authorization" => "Bearer #{api_key}",
             "Content-Type" => "application/json",
             "Accept" => "application/json"
-          })
+          },
+          ssl_verify: ssl_verify
+        )
 
         unless response.is_a?(Net::HTTPSuccess)
           UI.error("Buildstash API returned #{response.code}: #{response.body}")
@@ -279,12 +287,13 @@ module Fastlane
           upload_metadata_artifacts(
             metadata_artifacts: metadata_artifacts,
             pending_upload_id: pending_upload_id,
-            api_key: api_key
+            api_key: api_key,
+            ssl_verify: ssl_verify
           )
         end
       end
 
-      def self.upload_metadata_artifacts(metadata_artifacts:, pending_upload_id:, api_key:)
+      def self.upload_metadata_artifacts(metadata_artifacts:, pending_upload_id:, api_key:, ssl_verify: true)
         max_files = 10
         max_size_bytes = 5 * 1024 * 1024
 
@@ -334,7 +343,8 @@ module Fastlane
               "Authorization" => "Bearer #{api_key}",
               "Content-Type" => "application/json",
               "Accept" => "application/json"
-            }
+            },
+            ssl_verify: ssl_verify
           )
 
           unless meta_request_response.is_a?(Net::HTTPSuccess)
@@ -362,7 +372,8 @@ module Fastlane
               "Content-Length" => (upload_headers["Content-Length"] || file_size).to_s,
               "Content-Disposition" => upload_headers["Content-Disposition"] || "attachment; filename=\"#{filename}\"",
               "x-amz-acl" => "private"
-            }
+            },
+            ssl_verify: ssl_verify
           )
 
           unless upload_response.is_a?(Net::HTTPSuccess)
@@ -381,7 +392,8 @@ module Fastlane
               "Authorization" => "Bearer #{api_key}",
               "Content-Type" => "application/json",
               "Accept" => "application/json"
-            }
+            },
+            ssl_verify: ssl_verify
           )
 
           unless meta_verify_response.is_a?(Net::HTTPSuccess)
@@ -609,6 +621,14 @@ module Fastlane
             optional: true,
             type: Array,
             default_value: []
+          ),
+
+          FastlaneCore::ConfigItem.new(
+            key: :ssl_verify,
+            description: "Set to false to disable SSL certificate verification. Only use this if your CI runner has SSL issues (e.g. unable to verify certificate CRL)",
+            optional: true,
+            type: :boolean,
+            default_value: true
           ),
 
         ]

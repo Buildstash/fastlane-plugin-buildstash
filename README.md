@@ -140,6 +140,7 @@ buildstash_upload(
 | `vc_branch`                 | Branch name (if applicable)                                                                                  | ✖️       |
 | `vc_commit_sha`             | Commit SHA (if applicable)                                                                                   | ✖️       |
 | `vc_commit_url`             | Commit URL                                                                                                   | ✖️       |
+| `ssl_verify`                | Set to `false` to disable SSL certificate verification. Only use this if your CI runner has SSL issues (e.g. unable to verify certificate CRL). Defaults to `true` | ✖️ |
 
 
 ## Example Output
