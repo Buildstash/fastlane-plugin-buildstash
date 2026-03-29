@@ -39,7 +39,20 @@ module Fastlane
         vc_commit_sha = params[:vc_commit_sha]
         vc_commit_url = params[:vc_commit_url]
 
-        metadata_artifacts = params[:metadata_artifacts] || []
+        raw_artifacts = params[:metadata_artifacts]
+        metadata_artifacts = if raw_artifacts.is_a?(String) && !raw_artifacts.strip.empty?
+          begin
+            parsed = JSON.parse(raw_artifacts)
+            parsed.is_a?(Array) ? parsed : []
+          rescue JSON::ParserError => e
+            UI.important("⚠️ Could not parse metadata_artifacts as JSON: #{e.message} — skipping metadata artifacts.")
+            []
+          end
+        elsif raw_artifacts.is_a?(Array)
+          raw_artifacts
+        else
+          []
+        end
         ssl_verify = params[:ssl_verify]
 
         if !structure
@@ -617,9 +630,8 @@ module Fastlane
 
           FastlaneCore::ConfigItem.new(
             key: :metadata_artifacts,
-            description: "List of supplementary files to upload alongside the build (e.g. logs). Each entry is a Hash with a required `:path` key and an optional `:description` key. Maximum 10 files, 5MB per file",
+            description: "Supplementary files to upload alongside the build (e.g. logs). Accepts a Ruby Array of Hashes (from a Fastfile) or a JSON string (from the command line). Each entry needs a `path` key and an optional `description` key. Maximum 10 files, 5MB per file",
             optional: true,
-            type: Array,
             default_value: []
           ),
 
